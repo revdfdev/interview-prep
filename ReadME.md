@@ -3076,7 +3076,39 @@ Then call `printMatrix(matrix)` after transpose and after reverse to observe cha
 
 ---
 
-### **36. Search in Rotated Sorted Array**
+
+### ✅ Goal:
+
+Find the **index** of a `target` element in a **rotated sorted array**. If it doesn’t exist, return `-1`.
+
+---
+
+### 🧠 Strategy:
+
+Use **binary search** with added checks to determine which half of the array is sorted.
+
+1. **If** `nums[mid] == target`, return `mid`.
+2. Check **which half is sorted**:
+   - If `nums[left] <= nums[mid]`:
+     - If `target` is within `[nums[left], nums[mid])`, search left.
+     - Else, search right.
+   - Else (right half is sorted):
+     - If `target` is within `(nums[mid], nums[right]]`, search right.
+     - Else, search left.
+
+---
+
+### 🧪 Example:
+
+**Input:** `nums = [4,5,6,7,0,1,2]`, `target = 0`  
+**Output:** `4`
+
+**Input:** `nums = [4,5,6,7,0,1,2]`, `target = 3`  
+**Output:** `-1` (not found)
+
+---
+
+### ✅ Final Working Code:
 
 ```go
 package main
@@ -3085,11 +3117,15 @@ import "fmt"
 
 func search(nums []int, target int) int {
     left, right := 0, len(nums)-1
+
     for left <= right {
         mid := left + (right-left)/2
+
         if nums[mid] == target {
             return mid
         }
+
+        // Left half is sorted
         if nums[left] <= nums[mid] {
             if nums[left] <= target && target < nums[mid] {
                 right = mid - 1
@@ -3097,6 +3133,7 @@ func search(nums []int, target int) int {
                 left = mid + 1
             }
         } else {
+            // Right half is sorted
             if nums[mid] < target && target <= nums[right] {
                 left = mid + 1
             } else {
@@ -3104,19 +3141,71 @@ func search(nums []int, target int) int {
             }
         }
     }
+
     return -1
 }
 
 func main() {
-    nums := []int{4, 5, 6, 7, 0, 1, 2}
-    target := 0
-    fmt.Println(search(nums, target))  // Output: 4
+    fmt.Println(search([]int{4,5,6,7,0,1,2}, 0))  // Output: 4
+    fmt.Println(search([]int{4,5,6,7,0,1,2}, 3))  // Output: -1
+    fmt.Println(search([]int{1}, 0))             // Output: -1
 }
 ```
 
 ---
 
-### **37. Merge Sorted Linked List**
+### 📊 Time & Space Complexity:
+
+- **Time Complexity:** `O(log n)` — binary search
+- **Space Complexity:** `O(1)` — no extra space used
+
+---
+
+Let me know if you want to:
+- Handle **duplicate elements** in the array.
+- Find the **rotation index** separately.
+- Or just clean it up into a utility package with reusable helpers.
+---
+
+
+Here's your structured breakdown for **Problem 37: Merge Two Sorted Linked Lists**, following the clean format you've been using:
+
+---
+
+### ✅ Goal:
+
+Merge two **sorted** linked lists and return the **head** of the merged sorted list.
+
+---
+
+### 🧠 Strategy:
+
+1. Use a **dummy node** to simplify edge cases and manage head initialization.
+2. Use a pointer `current` to build the result list.
+3. Compare `l1.Val` and `l2.Val`:
+   - Append the smaller node to `current.Next`
+   - Move that list's pointer forward.
+4. When one list is exhausted, **append** the rest of the other list.
+5. Return `dummy.Next` as the head of the merged list.
+
+---
+
+### 🧪 Example:
+
+**Input:**
+```
+l1 = 1 → 2 → 4  
+l2 = 1 → 3 → 4
+```
+
+**Output:**
+```
+1 → 1 → 2 → 3 → 4 → 4
+```
+
+---
+
+### ✅ Final Working Code:
 
 ```go
 package main
@@ -3131,6 +3220,7 @@ type ListNode struct {
 func mergeTwoLists(l1 *ListNode, l2 *ListNode) *ListNode {
     dummy := &ListNode{}
     current := dummy
+
     for l1 != nil && l2 != nil {
         if l1.Val < l2.Val {
             current.Next = l1
@@ -3141,28 +3231,75 @@ func mergeTwoLists(l1 *ListNode, l2 *ListNode) *ListNode {
         }
         current = current.Next
     }
+
+    // Append remaining nodes
     if l1 != nil {
         current.Next = l1
     } else {
         current.Next = l2
     }
+
     return dummy.Next
 }
 
 func main() {
     l1 := &ListNode{Val: 1, Next: &ListNode{Val: 2, Next: &ListNode{Val: 4}}}
     l2 := &ListNode{Val: 1, Next: &ListNode{Val: 3, Next: &ListNode{Val: 4}}}
+
     result := mergeTwoLists(l1, l2)
     for result != nil {
         fmt.Print(result.Val, " ")
         result = result.Next
     }
+    // Output: 1 1 2 3 4 4
 }
 ```
 
 ---
 
-### **38. Swap Nodes in Pairs**
+### 📊 Time & Space Complexity:
+
+- **Time Complexity:** `O(n + m)` — where `n` and `m` are the lengths of `l1` and `l2`.
+- **Space Complexity:** `O(1)` — in-place merge with no extra allocations (excluding dummy node).
+
+---
+
+### ✅ Goal:
+
+Given a linked list, **swap every two adjacent nodes** and return its head.  
+You must perform the swapping **in-place**, without modifying the values.
+
+---
+
+### 🧠 Strategy:
+
+1. Use a **dummy node** pointing to the head to handle edge cases easily.
+2. Use a pointer `current` starting at the dummy node.
+3. While `current.Next` and `current.Next.Next` exist:
+   - Identify the pair: `first` and `second`
+   - Swap them by rewiring the pointers:
+     - `first.Next = second.Next`
+     - `second.Next = first`
+     - `current.Next = second`
+4. Move `current` two nodes ahead to the next pair.
+
+---
+
+### 🧪 Example:
+
+**Input:**
+```
+1 → 2 → 3 → 4
+```
+
+**Output:**
+```
+2 → 1 → 4 → 3
+```
+
+---
+
+### ✅ Final Working Code:
 
 ```go
 package main
@@ -3177,14 +3314,20 @@ type ListNode struct {
 func swapPairs(head *ListNode) *ListNode {
     dummy := &ListNode{Next: head}
     current := dummy
+
     for current.Next != nil && current.Next.Next != nil {
         first := current.Next
         second := current.Next.Next
+
+        // Swapping nodes
         first.Next = second.Next
         second.Next = first
         current.Next = second
+
+        // Move to next pair
         current = first
     }
+
     return dummy.Next
 }
 
@@ -3195,46 +3338,123 @@ func main() {
         fmt.Print(result.Val, " ")
         result = result.Next
     }
+    // Output: 2 1 4 3
 }
 ```
 
 ---
 
-### **39. Valid Palindrome**
+### 📊 Time & Space Complexity:
+
+- **Time Complexity:** `O(n)` — one pass through the list.
+- **Space Complexity:** `O(1)` — in-place swaps, no extra data structures.
+
+---
+
+### ✅ Goal:
+
+Check if a given string is a **valid palindrome**, **ignoring non-alphanumeric characters and case sensitivity**.
+
+---
+
+### 🧠 Strategy:
+
+1. **Two-pointer approach**:
+   - Start with one pointer from the left and another from the right.
+2. **Skip non-alphanumeric characters** using `unicode.IsLetter` and `unicode.IsDigit`.
+3. **Convert to lowercase** using `unicode.ToLower()` for case-insensitive comparison.
+4. **Compare corresponding characters**. If any mismatch, return `false`.
+
+---
+
+### 🧪 Example:
+
+**Input:** `"A man, a plan, a canal: Panama"`  
+**Output:** `true`  
+> Explanation: After cleaning → `"amanaplanacanalpanama"` is a palindrome.
+
+**Input:** `"race a car"`  
+**Output:** `false`
+
+---
+
+### ✅ Final Working Code:
 
 ```go
 package main
 
-import "fmt"
-import "unicode"
+import (
+    "fmt"
+    "unicode"
+)
 
 func isPalindrome(s string) bool {
     left, right := 0, len(s)-1
+
     for left < right {
-        for left < right && !unicode.IsAlphanumeric(rune(s[left])) {
+        for left < right && !unicode.IsLetter(rune(s[left])) && !unicode.IsDigit(rune(s[left])) {
             left++
         }
-        for left < right && !unicode.IsAlphanumeric(rune(s[right])) {
+        for left < right && !unicode.IsLetter(rune(s[right])) && !unicode.IsDigit(rune(s[right])) {
             right--
         }
+
         if unicode.ToLower(rune(s[left])) != unicode.ToLower(rune(s[right])) {
             return false
         }
         left++
         right--
     }
+
     return true
 }
 
 func main() {
     fmt.Println(isPalindrome("A man, a plan, a canal: Panama"))  // Output: true
-    fmt.Println(isPalindrome("race a car"))  // Output: false
+    fmt.Println(isPalindrome("race a car"))                      // Output: false
 }
 ```
 
 ---
 
-### **40. Count and Say**
+### 📊 Time & Space Complexity:
+
+- **Time Complexity:** `O(n)` — single pass through the string.
+- **Space Complexity:** `O(1)` — constant space, no extra data structures used.
+
+
+---
+
+### ✅ Goal:
+
+Implement the **“Count and Say”** sequence up to the `n`th term.
+
+---
+
+### 🧠 Strategy:
+
+1. Use **recursion** to build the previous term before constructing the current one.
+2. For each group of repeating digits:
+   - Count how many times the digit appears consecutively.
+   - Append `"<count><digit>"` to the result string.
+3. Base case:  
+   - `n == 1` → return `"1"`
+
+---
+
+### 🧪 Example:
+
+**Input:** `n = 4`  
+**Output:** `"1211"`  
+> Explanation:
+- Term 1: `"1"`  
+- Term 2: `"11"` (one 1)  
+- Term 3: `"21"` (two 1s)  
+- Term 4: `"1211"` (one 2, then one 1)
+
+---
+
+### ✅ Final Working Code:
 
 ```go
 package main
@@ -3245,9 +3465,11 @@ func countAndSay(n int) string {
     if n == 1 {
         return "1"
     }
+
     prev := countAndSay(n - 1)
     result := ""
     count := 1
+
     for i := 1; i < len(prev); i++ {
         if prev[i] == prev[i-1] {
             count++
@@ -3256,7 +3478,10 @@ func countAndSay(n int) string {
             count = 1
         }
     }
+
+    // Append the last group
     result += fmt.Sprintf("%d%c", count, prev[len(prev)-1])
+
     return result
 }
 
@@ -3264,6 +3489,13 @@ func main() {
     fmt.Println(countAndSay(4))  // Output: "1211"
 }
 ```
+
+---
+
+### 📊 Time & Space Complexity:
+
+- **Time Complexity:** `O(2^n)` (approx.) due to recursive string generation and repeated parsing.
+- **Space Complexity:** `O(2^n)` for recursive calls and string concatenation.
 
 ---
 
@@ -3315,7 +3547,36 @@ func main() {
 
 ---
 
-### **42. Best Time to Buy and Sell Stock**
+Here's a clear and structured breakdown for **Problem 42: Best Time to Buy and Sell Stock** 🧾
+
+---
+
+### ✅ Goal:
+
+Given an array `prices[]` where `prices[i]` is the stock price on day `i`, find the **maximum profit** you can achieve from **one transaction** (buy once and sell once).  
+If no profit is possible, return `0`.
+
+---
+
+### 🧠 Strategy:
+
+- Track the **minimum price** seen so far (`minPrice`).
+- For each price:
+  - Calculate `price - minPrice` to get the profit if sold today.
+  - Update `maxProfit` if that profit is greater than the current max.
+  - Update `minPrice` if the current price is lower.
+
+---
+
+### 🧪 Example:
+
+**Input:** `prices = [7, 1, 5, 3, 6, 4]`  
+**Output:** `5`  
+> Buy on day 2 (`price = 1`) and sell on day 5 (`price = 6`), profit = `6 - 1 = 5`.
+
+---
+
+### ✅ Final Working Code:
 
 ```go
 package main
@@ -3324,6 +3585,7 @@ import "fmt"
 
 func maxProfit(prices []int) int {
     minPrice, maxProfit := prices[0], 0
+
     for _, price := range prices[1:] {
         if price < minPrice {
             minPrice = price
@@ -3331,6 +3593,7 @@ func maxProfit(prices []int) int {
             maxProfit = price - minPrice
         }
     }
+
     return maxProfit
 }
 
@@ -3342,7 +3605,41 @@ func main() {
 
 ---
 
-### **43. Search Insert Position**
+### 📊 Time & Space Complexity:
+
+- **Time Complexity:** `O(n)` — single pass through the array.
+- **Space Complexity:** `O(1)` — constant extra space used.
+
+---
+
+### ✅ Goal:
+
+Given a **sorted** array `nums` and a `target` value, return the **index if the target is found**.  
+If not, return the **index where it would be inserted** in order.
+
+---
+
+### 🧠 Strategy:
+
+- Use **binary search** to find the target or determine where it should be inserted.
+- Keep narrowing down the range until `left > right`.
+- If not found, `left` will be the insert position.
+
+---
+
+### 🧪 Example:
+
+**Input:** `nums = [1, 3, 5, 6]`, `target = 5`  
+**Output:** `2`  
+> `5` is at index `2`.
+
+**Input:** `nums = [1, 3, 5, 6]`, `target = 2`  
+**Output:** `1`  
+> `2` should be inserted at index `1`.
+
+---
+
+### ✅ Final Working Code:
 
 ```go
 package main
@@ -3374,7 +3671,31 @@ func main() {
 
 ---
 
-### **44. Implement strStr()**
+### 📊 Time & Space Complexity:
+
+- **Time Complexity:** `O(log n)` — classic binary search.
+- **Space Complexity:** `O(1)` — no extra space used.
+
+
+---
+
+### ✅ Goal:
+
+Implement the built-in function `strStr(haystack, needle)` which returns the **index of the first occurrence** of `needle` in `haystack`, or `-1` if not found.
+
+If `needle` is an empty string, return `0` as per standard behavior.
+
+---
+
+### 🧠 Strategy:
+
+- Loop through `haystack` and at each index `i`, check the substring `haystack[i:i+len(needle)]`.
+- Return `i` if it matches `needle`.
+- If loop finishes without finding it, return `-1`.
+
+---
+
+### ✅ Final Working Code:
 
 ```go
 package main
@@ -3382,65 +3703,109 @@ package main
 import "fmt"
 
 func strStr(haystack, needle string) int {
-    if len(needle)== 0 {
+    if len(needle) == 0 {
         return 0
     }
     for i := 0; i <= len(haystack)-len(needle); i++ {
         if haystack[i:i+len(needle)] == needle {
-          return i
+            return i
         }
     }
-  return -1
+    return -1
 }
 
 func main() {
-  fmt.Println(strStr("hello", "ll"))
-  // Output: 2
-  fmt.Println(strStr("aaaaa", "bba"))
-  // Output: -1
+    fmt.Println(strStr("hello", "ll"))   // Output: 2
+    fmt.Println(strStr("aaaaa", "bba"))  // Output: -1
 }
 ```
 
-Certainly! Let's continue with problems from 45 onward and provide their code solutions in Go:
+---
+
+### 📊 Time & Space Complexity:
+
+- **Time Complexity:** `O((N - L + 1) * L)`  
+  Where `N = len(haystack)`, `L = len(needle)`
+
+- **Space Complexity:** `O(1)`  
+  No extra space used.
 
 ---
 
-### **45. Subarray Sum Equals K**
+### ✅ Goal:
+
+Given an integer array `nums` and an integer `k`, **find the total number of continuous subarrays whose sum equals to `k`**.
+
+---
+
+### 💡 Approach: Prefix Sum + Hash Map
+
+We track the **cumulative sum** (`currentSum`) as we iterate, and use a hashmap (`sumCount`) to store how many times each prefix sum has occurred.
+
+#### Key Insight:
+If `currentSum - k` has occurred before, then a subarray from that earlier index to the current index must sum to `k`.
+
+---
+
+### ✅ Code Explanation:
 
 ```go
-package main
-
-import "fmt"
-
 func subarraySum(nums []int, k int) int {
-    sumCount := map[int]int{0: 1}
+    sumCount := map[int]int{0: 1} // prefixSum: frequency
     currentSum, count := 0, 0
+
     for _, num := range nums {
         currentSum += num
         if val, exists := sumCount[currentSum-k]; exists {
-            count += val
+            count += val // number of times a matching prefixSum was seen
         }
-        sumCount[currentSum]++
+        sumCount[currentSum]++ // track current prefix sum
     }
-    return count
-}
 
-func main() {
-    nums := []int{1, 1, 1}
-    k := 2
-    fmt.Println(subarraySum(nums, k))  // Output: 2
+    return count
 }
 ```
 
 ---
 
-### **46. Permutations**
+### 🧪 Example:
+
+Input: `nums = [1, 1, 1]`, `k = 2`
+
+- Prefix sums: `[1, 2, 3]`
+- `currentSum - k` → `2-2=0`, `3-2=1`
+- Map tracks how often each sum appears.
+
+Matching subarrays:
+- `[1, 1]` from index 0 to 1
+- `[1, 1]` from index 1 to 2
+
+✅ Total = `2`
+
+---
+
+### 🕒 Complexity:
+
+- **Time:** `O(n)`
+- **Space:** `O(n)` (for the hashmap)
+
+---
+
+### ✅ Goal:
+
+Generate all possible **permutations** of a given integer array `nums`.
+
+---
+
+### 💡 Approach: Backtracking
+
+Backtracking helps explore all possible arrangements of the input array by recursively swapping elements. We start from the first element and try all possible values for each position.
+
+---
+
+### ✅ Code Explanation:
 
 ```go
-package main
-
-import "fmt"
-
 func permute(nums []int) [][]int {
     var result [][]int
     var backtrack func([]int, int)
@@ -3450,64 +3815,142 @@ func permute(nums []int) [][]int {
             return
         }
         for i := start; i < len(nums); i++ {
-            nums[start], nums[i] = nums[i], nums[start]
+            nums[start], nums[i] = nums[i], nums[start] // swap
             backtrack(nums, start+1)
-            nums[start], nums[i] = nums[i], nums[start]
+            nums[start], nums[i] = nums[i], nums[start] // swap back
         }
     }
     backtrack(nums, 0)
     return result
 }
+```
 
-func main() {
-    nums := []int{1, 2, 3}
-    result := permute(nums)
-    fmt.Println(result)  // Output: [[1 2 3] [1 3 2] [2 1 3] [2 3 1] [3 2 1] [3 1 2]]
-}
+#### Key Insights:
+- **Backtracking**: For each index, we swap elements and recursively generate permutations for the next index.
+- **Restoration**: After exploring one possibility, we swap back to the original state to explore other options.
+- **Base Case**: When `start == len(nums)`, it means we've created a valid permutation and we add it to the result.
+
+---
+
+### 🧪 Example:
+
+Input: `nums = [1, 2, 3]`
+
+#### Steps:
+
+1. Swap positions and generate permutations for subarrays.
+2. Generate each valid permutation.
+
+Output: 
+```
+[[1 2 3] [1 3 2] [2 1 3] [2 3 1] [3 2 1] [3 1 2]]
 ```
 
 ---
 
-### **47. Permutations II (Handling Duplicates)**
+### 🕒 Complexity:
+
+- **Time:** `O(n!)` — We generate `n!` permutations.
+- **Space:** `O(n)` — Recursive stack space.
+
+---
+
+### ✅ Goal:
+
+Generate all **unique** permutations of the given list `nums`, accounting for any duplicates in the array.
+
+---
+
+### 💡 Approach: Backtracking with Deduplication
+
+To handle duplicates:
+1. **Sorting**: Sorting the array helps ensure that identical elements are adjacent. This allows us to skip over duplicates while generating permutations.
+2. **Skipping Duplicates**: During the recursion, we can skip over elements that have already been processed at the current recursion depth to avoid generating duplicate permutations.
+
+---
+
+### ✅ Code Explanation:
 
 ```go
-package main
-
-import "fmt"
-import "sort"
-
 func permuteUnique(nums []int) [][]int {
     var result [][]int
     var backtrack func([]int, int)
-    sort.Ints(nums)
+    sort.Ints(nums)  // Sorting the array to ensure duplicate elements are adjacent
     backtrack = func(nums []int, start int) {
         if start == len(nums) {
-            result = append(result, append([]int(nil), nums...))
+            result = append(result, append([]int(nil), nums...))  // Add the current permutation
             return
         }
         for i := start; i < len(nums); i++ {
-            if i > start && nums[i] == nums[i-1] {
+            if i > start && nums[i] == nums[i-1] {  // Skip duplicates
                 continue
             }
-            nums[start], nums[i] = nums[i], nums[start]
-            backtrack(nums, start+1)
-            nums[start], nums[i] = nums[i], nums[start]
+            nums[start], nums[i] = nums[i], nums[start]  // Swap
+            backtrack(nums, start+1)  // Recur for the next position
+            nums[start], nums[i] = nums[i], nums[start]  // Backtrack (restore the state)
         }
     }
     backtrack(nums, 0)
     return result
 }
+```
 
-func main() {
-    nums := []int{1, 1, 2}
-    result := permuteUnique(nums)
-    fmt.Println(result)  // Output: [[1 1 2] [1 2 1] [2 1 1]]
-}
+#### Key Insights:
+- **Sorting**: Sorting helps us handle duplicates by grouping identical elements together.
+- **Skipping Duplicates**: We skip the current index `i` if `nums[i] == nums[i-1]` and `i > start` to ensure that we do not generate the same permutation multiple times.
+- **Backtracking**: We explore each possible permutation by swapping and then backtracking to explore other options.
+
+---
+
+### 🧪 Example:
+
+Input: `nums = [1, 1, 2]`
+
+#### Steps:
+
+1. Sort the array: `nums = [1, 1, 2]`
+2. Generate permutations and skip over duplicates (`1` at index 0 and 1 are identical, so skip the second one).
+3. Add valid unique permutations to the result.
+
+Output: 
+```
+[[1 1 2] [1 2 1] [2 1 1]]
 ```
 
 ---
 
-### **48. Rotate Image (Matrix)**
+### 🕒 Complexity:
+
+- **Time:** `O(n!)` — We generate `n!` permutations in the worst case, but we reduce the number of duplicate permutations due to the skip mechanism.
+- **Space:** `O(n)` — Recursive stack space and the space for the result.
+
+---
+
+#### Goal:
+Rotate an `n x n` matrix 90 degrees clockwise.
+
+---
+
+### **Solution Approach:**
+
+To rotate the matrix 90 degrees clockwise, we can break the problem into two main steps:
+
+1. **Transpose the Matrix**: Convert the rows of the matrix into columns.
+2. **Reverse Each Row**: After transposing, reverse each row to complete the 90-degree rotation.
+
+---
+
+### **Step-by-Step Breakdown:**
+
+1. **Transpose the Matrix**: 
+    - For each element at position `(i, j)`, swap it with the element at position `(j, i)`. This step turns rows into columns.
+  
+2. **Reverse Each Row**: 
+    - After the transpose, each row needs to be reversed. This step effectively places the elements in the correct positions for a 90-degree rotation.
+
+---
+
+### **Code Explanation:**
 
 ```go
 package main
@@ -3515,14 +3958,16 @@ package main
 import "fmt"
 
 func rotate(matrix [][]int) {
-    n := len(matrix)
-    // Transpose the matrix
+    n := len(matrix)  // Get the number of rows/columns (since it's a square matrix)
+    
+    // Step 1: Transpose the matrix (swap matrix[i][j] with matrix[j][i])
     for i := 0; i < n; i++ {
         for j := i; j < n; j++ {
             matrix[i][j], matrix[j][i] = matrix[j][i], matrix[i][j]
         }
     }
-    // Reverse each row
+    
+    // Step 2: Reverse each row (swap elements in each row)
     for i := 0; i < n; i++ {
         for j, k := 0, n-1; j < k; j, k = j+1, k-1 {
             matrix[i][j], matrix[i][k] = matrix[i][k], matrix[i][j]
@@ -3536,14 +3981,95 @@ func main() {
         {4, 5, 6},
         {7, 8, 9},
     }
-    rotate(matrix)
+    rotate(matrix)  // Perform the 90-degree rotation
     fmt.Println(matrix)  // Output: [[7 4 1] [8 5 2] [9 6 3]]
 }
 ```
 
+#### **Explanation of Code:**
+1. **Transpose Step:**
+   - `matrix[i][j], matrix[j][i] = matrix[j][i], matrix[i][j]`: This line swaps elements `(i, j)` and `(j, i)` to transpose the matrix.
+  
+2. **Reverse Each Row Step:**
+   - We reverse each row by swapping the elements symmetrically around the center.
+
 ---
 
-### **49. Group Anagrams**
+### **Example:**
+
+#### Input:
+```go
+matrix := [][]int{
+    {1, 2, 3},
+    {4, 5, 6},
+    {7, 8, 9},
+}
+```
+
+#### Steps:
+
+1. **Transpose the Matrix**:
+   - After transposing:
+     ```
+     [
+         {1, 4, 7},
+         {2, 5, 8},
+         {3, 6, 9}
+     ]
+     ```
+
+2. **Reverse Each Row**:
+   - After reversing rows:
+     ```
+     [
+         {7, 4, 1},
+         {8, 5, 2},
+         {9, 6, 3}
+     ]
+     ```
+
+#### Output:
+```
+[[7 4 1] [8 5 2] [9 6 3]]
+```
+
+---
+
+### **Complexity Analysis:**
+
+- **Time Complexity**:
+  - The algorithm involves two passes over the matrix:
+    1. Transposing: O(n^2)
+    2. Reversing rows: O(n^2)
+  - So, the overall time complexity is **O(n^2)**, where `n` is the number of rows (or columns).
+
+- **Space Complexity**:
+  - The matrix is modified in place, so no additional space is used, apart from the input matrix. Therefore, the space complexity is **O(1)** (constant space).
+
+---
+
+#### Goal:
+Given an array of strings, group the anagrams together. An anagram is a word formed by rearranging the letters of another word. Words that are anagrams will share the same set of letters when sorted.
+
+---
+
+### **Solution Approach:**
+
+1. **Hashing Approach**:
+   - Use a map (or dictionary) where the key is a "sorted" version of a string and the value is a list of all strings (anagrams) that match that sorted string.
+   
+2. **Sorting the Strings**:
+   - For each word in the input list, sort the characters of the word. This sorted version will serve as the key in the map. All words that are anagrams of each other will produce the same sorted string.
+
+3. **Grouping the Anagrams**:
+   - If two words are anagrams, their sorted version will be identical, so they will be grouped together under the same key in the map.
+
+4. **Return the Result**:
+   - After processing all strings, the map will contain all the anagram groups. The result is simply the values of this map.
+
+---
+
+### **Code Explanation:**
 
 ```go
 package main
@@ -3552,12 +4078,19 @@ import "fmt"
 import "sort"
 
 func groupAnagrams(strs []string) [][]string {
+    // Map to hold the anagram groups
     anagrams := make(map[string][]string)
+    
+    // Iterate through the list of strings
     for _, str := range strs {
+        // Sort the string and use it as a key
         sortedStr := sortString(str)
+        
+        // Append the original string to the anagram group
         anagrams[sortedStr] = append(anagrams[sortedStr], str)
     }
 
+    // Prepare the result array of anagram groups
     var result [][]string
     for _, group := range anagrams {
         result = append(result, group)
@@ -3565,54 +4098,218 @@ func groupAnagrams(strs []string) [][]string {
     return result
 }
 
+// Helper function to sort the characters of a string
 func sortString(s string) string {
+    // Convert string to rune slice for sorting
     runes := []rune(s)
+    
+    // Sort the rune slice
     sort.Slice(runes, func(i, j int) bool {
         return runes[i] < runes[j]
     })
+    
+    // Convert the sorted rune slice back to a string
     return string(runes)
 }
 
 func main() {
     strs := []string{"eat", "tea", "tan", "ate", "nat", "bat"}
+    
+    // Group anagrams
     result := groupAnagrams(strs)
+    
+    // Print the result
     fmt.Println(result)  // Output: [["eat" "tea" "ate"] ["tan" "nat"] ["bat"]]
 }
 ```
 
+#### **Explanation of the Code:**
+
+1. **`groupAnagrams` function**:
+   - The function accepts a list of strings (`strs`).
+   - We create a map `anagrams` where the key is the sorted string, and the value is a slice of strings that are anagrams of each other.
+   - We iterate over each string, sort it, and add it to the corresponding list in the map.
+   
+2. **`sortString` function**:
+   - This helper function sorts the characters of a given string.
+   - We convert the string into a slice of `rune`s (to handle Unicode characters) and then sort the slice. After sorting, we convert it back into a string.
+
+3. **Main function**:
+   - We define a list of strings and pass it to `groupAnagrams` to get the grouped anagrams.
+   - Finally, we print the resulting anagram groups.
+
 ---
 
-### **50. Pow(x, n)**
+### **Example Walkthrough:**
+
+#### Input:
+```go
+strs := []string{"eat", "tea", "tan", "ate", "nat", "bat"}
+```
+
+1. First, sort each string:
+   - `"eat"` → `"aet"`
+   - `"tea"` → `"aet"`
+   - `"tan"` → `"ant"`
+   - `"ate"` → `"aet"`
+   - `"nat"` → `"ant"`
+   - `"bat"` → `"abt"`
+
+2. The map (`anagrams`) will look like this after processing:
+   ```
+   {
+       "aet": ["eat", "tea", "ate"],
+       "ant": ["tan", "nat"],
+       "abt": ["bat"]
+   }
+   ```
+
+3. Convert the map to a result slice:
+   ```
+   [["eat" "tea" "ate"], ["tan" "nat"], ["bat"]]
+   ```
+
+#### Output:
+```go
+[["eat" "tea" "ate"] ["tan" "nat"] ["bat"]]
+```
+
+---
+
+### **Complexity Analysis:**
+
+- **Time Complexity**:
+  - Sorting each string takes \(O(m \log m)\), where \(m\) is the length of the string.
+  - There are \(n\) strings in total, so the total time complexity is **O(n \cdot m \log m)**, where \(n\) is the number of strings and \(m\) is the average length of each string.
+
+- **Space Complexity**:
+  - The space complexity is **O(n \cdot m)** because we are storing all the strings in the map and the result slice.
+
+---
+
+
+### **Problem 50: Pow(x, n)**
+
+#### Goal:
+Implement a function that calculates `x` raised to the power of `n` (i.e., \( x^n \)) efficiently. The power `n` can be both positive and negative, and `x` is a floating-point number.
+
+---
+
+### **Solution Approach:**
+
+To solve this problem efficiently, we can use **Exponentiation by Squaring**, which reduces the time complexity to \( O(\log n) \). The idea behind this method is:
+
+1. **If n is even**: 
+   - \( x^n = (x^{n/2})^2 \)
+   
+2. **If n is odd**: 
+   - \( x^n = x \times (x^{n/2})^2 \)
+
+3. **Handle negative exponents**:
+   - If \( n < 0 \), calculate the power for \( |n| \) and then take the reciprocal of the result:
+     - \( x^{-n} = \frac{1}{x^n} \)
+
+4. **Base case**:
+   - When \( n = 0 \), return 1 because any number raised to the power 0 is 1.
+
+---
+
+### **Code Explanation:**
 
 ```go
 package main
 
 import "fmt"
 
+// Main function to calculate x^n
 func myPow(x float64, n int) float64 {
+    // Base case: any number raised to the power of 0 is 1
     if n == 0 {
         return 1
     }
+
+    // If n is negative, use the reciprocal of x and make n positive
     if n < 0 {
         x = 1 / x
         n = -n
     }
+
+    // Call helper function to calculate power using exponentiation by squaring
     return powHelper(x, n)
 }
 
+// Helper function that uses exponentiation by squaring
 func powHelper(x float64, n int) float64 {
+    // Base case: x^0 = 1
     if n == 0 {
         return 1
     }
+
+    // Recursive step: calculate x^(n/2)
     half := powHelper(x, n/2)
+
+    // If n is even, x^n = (x^(n/2))^2
     if n%2 == 0 {
         return half * half
     }
+
+    // If n is odd, x^n = x * (x^(n/2))^2
     return half * half * x
 }
 
 func main() {
+    // Test cases
     fmt.Println(myPow(2.00000, 10))  // Output: 1024
     fmt.Println(myPow(2.10000, 3))   // Output: 9.261
 }
 ```
+
+---
+
+### **Explanation of the Code:**
+
+1. **`myPow` function**:
+   - The function checks if the exponent \( n \) is zero. If so, it returns `1` because \( x^0 = 1 \).
+   - If \( n \) is negative, we convert it to a positive exponent by taking the reciprocal of `x`, and also negate `n` to make it positive.
+   - The function then calls `powHelper`, a helper function that performs the efficient exponentiation calculation using the divide-and-conquer method of exponentiation by squaring.
+
+2. **`powHelper` function**:
+   - This function recursively calculates the power of `x` raised to `n`.
+   - It divides the problem by half each time (i.e., calculates \( x^{n/2} \)) and uses the result to combine it based on whether \( n \) is even or odd:
+     - For even \( n \), it returns \( (x^{n/2})^2 \).
+     - For odd \( n \), it returns \( x \times (x^{n/2})^2 \).
+
+3. **Main function**:
+   - We test the `myPow` function with two examples: \( 2^{10} \) and \( 2.1^3 \).
+
+---
+
+### **Example Walkthrough:**
+
+#### Test Case 1: `myPow(2.00000, 10)`
+
+- We start with \( x = 2.0 \) and \( n = 10 \).
+- \( 10 \) is even, so we compute \( (x^5)^2 \).
+- \( 5 \) is odd, so we compute \( x \times (x^2)^2 \), which further reduces to \( x^2 \) and so on, until we reach the base case where \( x^0 = 1 \).
+- Ultimately, the result will be \( 1024 \).
+
+#### Test Case 2: `myPow(2.10000, 3)`
+
+- For \( 2.1^3 \), we compute \( 2.1 \times 2.1^2 \).
+- We calculate \( 2.1^2 = 4.41 \), and then multiply it by 2.1, resulting in \( 9.261 \).
+
+#### Output:
+
+```go
+1024
+9.261
+```
+
+---
+
+### **Complexity Analysis:**
+
+- **Time Complexity**: \( O(\log n) \) due to the halving of the exponent at each recursive step.
+  
+- **Space Complexity**: \( O(\log n) \) due to the recursive stack depth.
+
